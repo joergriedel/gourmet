@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERGO Gourmet Menu Plugin</title>
+    <style>
+        :root {
+            --ergo-red: #da291c;
+            --ergo-dark: #333;
+            --bg-light: #f4f4f4;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: transparent;
+            margin: 0;
+            padding: 10px;
+        }
+        .menu-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 400px;
+            border: 1px solid #eee;
+        }
+        .header {
+            background-color: var(--ergo-red);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .location-tag {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .btn-open {
+            display: block;
+            background-color: var(--ergo-dark);
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn-open:hover {
+            background-color: #000;
+        }
+        .footer {
+            font-size: 11px;
+            color: #999;
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-card">
+    <div class="header">
+        <h2>Mittagessen</h2>
+    </div>
+    <div class="content">
+        <span class="location-tag">Düsseldorf | ERGO-Platz 1</span>
+        <div class="status-badge">● Aktueller Speiseplan</div>
+        <p style="font-size: 14px; color: #444;">Klicken Sie unten, um den aktuellen Wochenplan (G&G, Happy Bite, Bowl) einzusehen.</p>
+        
+        <a href="https://www.ergo-gourmet.de/standorte/duesseldorf-ergo-platz-1/mittagessen" 
+           target="_blank" 
+           class="btn-open">
+           Speiseplan öffnen
+        </a>
+    </div>
+    <div class="footer">
+        Öffnungszeiten: Mo — Fr | 11:15 — 14:00 Uhr
+    </div>
+</div>
+
+<script>
+    // Optional: If you want to add a "Last Updated" timestamp
+    const date = new Date();
+    console.log("Plugin loaded at: " + date.toLocaleTimeString());
+</script>
+
+</body>
+</html>
