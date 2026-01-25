@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERGO Gourmet Interactive App</title>
+    <title>ERGO Gourmet Pro App</title>
     <style>
         :root {
             --ergo-red: #da291c;
             --light-bg: #f2f2f7;
-            --border: #d1d1d6;
             --text-main: #1c1c1e;
             --green: #34c759;
             --yellow: #ffcc00;
@@ -20,7 +19,7 @@
             background-color: var(--light-bg);
             margin: 0;
             color: var(--text-main);
-            padding-bottom: 50px;
+            padding-bottom: 30px;
         }
 
         /* Header */
@@ -50,7 +49,6 @@
             background: #e5e5ea;
             font-weight: 600;
             border: none;
-            transition: 0.2s;
         }
         .day-pill.active {
             background: var(--ergo-red);
@@ -58,12 +56,12 @@
         }
 
         /* Menu List */
-        .menu-container { padding: 16px; transition: opacity 0.3s; }
+        .menu-container { padding: 16px; transition: opacity 0.2s; }
         .station-label {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #8e8e93;
-            margin: 20px 0 8px 4px;
+            margin: 15px 0 6px 4px;
             text-transform: uppercase;
         }
 
@@ -73,27 +71,61 @@
             padding: 16px;
             margin-bottom: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
         }
-        .meal-info { flex: 1; }
-        .meal-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+
+        .meal-info { flex: 1; cursor: pointer; }
+        .meal-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; padding-right: 30px;}
         .meal-meta { font-size: 13px; color: #8e8e93; display: flex; align-items: center; gap: 8px; }
-        .price { font-weight: 700; font-size: 16px; margin-left: 12px; color: var(--ergo-red); }
+
+        .fav-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #ccc;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .fav-btn.active { color: var(--ergo-red); }
+
+        .price { font-weight: 700; color: var(--ergo-red); min-width: 60px; text-align: right; }
 
         .ampel { width: 10px; height: 10px; border-radius: 50%; }
         .green { background: var(--green); }
         .yellow { background: var(--yellow); }
         .red { background: var(--red); }
+
+        /* Detail Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+        }
+        .modal-content {
+            background: white;
+            width: 100%;
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .close-btn { 
+            background: #f2f2f7; border: none; padding: 10px 20px; 
+            border-radius: 10px; width: 100%; margin-top: 20px; font-weight: 600; 
+        }
     </style>
 </head>
 <body>
 
 <div class="app-bar">
     <div style="font-weight: 800; font-size: 20px;">ERGO Gourmet</div>
-    <div style="font-size: 13px; color: #8e8e93;">Düsseldorf | ERGO-Platz 1</div>
+    <div style="font-size: 13px; color: #8e8e93;">Mittagsplan Düsseldorf</div>
 </div>
 
 <div class="day-nav" id="dayNav">
@@ -104,49 +136,87 @@
     <button class="day-pill" onclick="loadMenu('Fr')">Fr</button>
 </div>
 
-<div class="menu-container" id="menuContainer">
+<div class="menu-container" id="menuContainer"></div>
+
+<div id="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="modalTitle" style="margin-top:0"></h2>
+        <p id="modalDesc" style="color: #666; line-height: 1.5;"></p>
+        <div id="modalNutri" style="background: #f8f8f8; padding: 15px; border-radius: 10px; font-size: 14px;"></div>
+        <button class="close-btn" onclick="closeModal()">Schließen</button>
     </div>
+</div>
 
 <script>
     const menuData = {
         'Mo': [
-            { station: 'G&G', name: 'Gyros vom Putenfleisch', price: '6,50€', energy: '926 kcal', color: 'yellow' },
-            { station: 'The Bowl', name: 'Gochujang-Rosenkohl (Vegan)', price: '4,40€', energy: '781 kcal', color: 'green' }
+            { station: 'G&G', name: 'Gyros vom Putenfleisch', price: '6,50€', energy: '926 kcal', color: 'yellow', details: 'Mit Djuwetschreis und hausgemachtem Krautsalat.' },
+            { station: 'The Bowl', name: 'Gochujang-Rosenkohl (Vegan)', price: '4,40€', energy: '781 kcal', color: 'green', details: 'Scharf marinierter Rosenkohl mit Kimchi und Basmatireis.' },
+            { station: 'Signor Pepino', name: 'Pasta Carbonara', price: '5,50€', energy: '850 kcal', color: 'yellow', details: 'Frische Pasta mit Speck-Sahne-Sauce und Grana Padano.' },
+            { station: 'Tagessuppe', name: 'Brokkolicremesuppe', price: '1,10€', energy: '156 kcal', color: 'green', details: 'Cremige Suppe mit gerösteten Mandelsplittern.' }
         ],
         'Di': [
-            { station: 'G&G', name: 'Rheinischer Sauerbraten', price: '7,20€', energy: '840 kcal', color: 'yellow' },
-            { station: 'The Daily 2', name: 'Penne All’Arrabbiata', price: '5,10€', energy: '620 kcal', color: 'green' }
+            { station: 'G&G', name: 'Rheinischer Sauerbraten', price: '7,20€', energy: '840 kcal', color: 'yellow', details: 'Vom Rind, mit Rosinensauce und Kartoffelklößen.' },
+            { station: 'The Daily 2', name: 'Penne All’Arrabbiata', price: '5,10€', energy: '620 kcal', color: 'green', details: 'Scharfe Tomatensauce mit Chili, Knoblauch und Petersilie.' },
+            { station: 'Mix & Match', name: 'Gebackene Schupfnudeln', price: '4,80€', energy: '510 kcal', color: 'yellow', details: 'Mit Sauerkraut und kleinem Beilagensalat.' },
+            { station: 'The Bowl', name: 'Poké Bowl Lachs', price: '7,50€', energy: '680 kcal', color: 'green', details: 'Frischer Lachs, Edamame, Wakame und Sushireis.' }
         ],
         'Mi': [
-            { station: 'Signor Pepino', name: 'Hausgemachte Lasagne', price: '6,80€', energy: '1050 kcal', color: 'red' },
-            { station: 'The Bowl', name: 'Falafel Bowl mit Hummus', price: '5,50€', energy: '590 kcal', color: 'green' }
+            { station: 'Signor Pepino', name: 'Hausgemachte Lasagne', price: '6,80€', energy: '1050 kcal', color: 'red', details: 'Klassisch mit Rinderhackfleisch und Béchamelsauce.' },
+            { station: 'The Bowl', name: 'Falafel Bowl mit Hummus', price: '5,50€', energy: '590 kcal', color: 'green', details: 'Kichererbsenbällchen, Couscous und Minz-Joghurt-Dip.' },
+            { station: 'G&G', name: 'Hähnchengeschnetzeltes', price: '6,20€', energy: '710 kcal', color: 'yellow', details: 'Zürcher Art mit Eierspätzle.' },
+            { station: 'Happy Bite', name: 'Classic Cheeseburger', price: '5,80€', energy: '940 kcal', color: 'red', details: '100% Rindfleisch, Cheddar und Brioche Bun.' }
         ],
         'Do': [
-            { station: 'G&G', name: 'Currywurst ERGO Style', price: '5,90€', energy: '980 kcal', color: 'red' },
-            { station: 'Mix & Match', name: 'Gebratenes Lachsfilet', price: '8,50€', energy: '450 kcal', color: 'green' }
+            { station: 'G&G', name: 'Currywurst ERGO Style', price: '5,90€', energy: '980 kcal', color: 'red', details: 'Mit würziger Currysauce und Pommes Frites.' },
+            { station: 'Mix & Match', name: 'Gebratenes Lachsfilet', price: '8,50€', energy: '450 kcal', color: 'green', details: 'An Zitronen-Dillsauce mit Blattspinat.' },
+            { station: 'Signor Pepino', name: 'Pizza Margherita', price: '4,90€', energy: '820 kcal', color: 'yellow', details: 'Mit fruchtiger Tomatensauce und echtem Mozzarella.' },
+            { station: 'The Bowl', name: 'Quinoa Power Bowl', price: '5,20€', energy: '410 kcal', color: 'green', details: 'Quinoa, Avocado, Kirschtomaten und Limetten-Dressing.' }
         ],
         'Fr': [
-            { station: 'G&G', name: 'Backfisch mit Remoulade', price: '6,90€', energy: '810 kcal', color: 'yellow' },
-            { station: 'The Daily 2', name: 'Kaiserschmarrn mit Zwetschgen', price: '4,50€', energy: '1100 kcal', color: 'red' }
+            { station: 'G&G', name: 'Backfisch mit Remoulade', price: '6,90€', energy: '810 kcal', color: 'yellow', details: 'Knuspriges Fischfilet mit hausgemachtem Kartoffelsalat.' },
+            { station: 'The Daily 2', name: 'Kaiserschmarrn', price: '4,50€', energy: '1100 kcal', color: 'red', details: 'Mit Zwetschgenröster und Puderzucker.' },
+            { station: 'The Bowl', name: 'Süßkartoffel-Curry', price: '4,90€', energy: '520 kcal', color: 'green', details: 'Mit Kokosmilch, Kichererbsen und Naan-Brot.' },
+            { station: 'Signor Pepino', name: 'Spaghetti Bolognese', price: '5,20€', energy: '780 kcal', color: 'yellow', details: 'Traditionelles Ragu nach italienischem Rezept.' }
         ]
     };
 
+    let favorites = JSON.parse(localStorage.getItem('ergoFavs')) || [];
+
+    function toggleFav(e, name) {
+        e.stopPropagation();
+        if (favorites.includes(name)) {
+            favorites = favorites.filter(f => f !== name);
+        } else {
+            favorites.push(name);
+        }
+        localStorage.setItem('ergoFavs', JSON.stringify(favorites));
+        loadMenu(document.querySelector('.day-pill.active').innerText);
+    }
+
+    function openModal(name, details, energy) {
+        document.getElementById('modalTitle').innerText = name;
+        document.getElementById('modalDesc').innerText = details;
+        document.getElementById('modalNutri').innerText = "Nährwerte: " + energy + " | Allergene: Gluten, Laktose, Sellerie";
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
     function loadMenu(day) {
         const container = document.getElementById('menuContainer');
-        
-        // Update Tabs
         document.querySelectorAll('.day-pill').forEach(btn => {
             btn.classList.remove('active');
             if(btn.innerText === day) btn.classList.add('active');
         });
 
-        // Generate HTML
         let html = '';
         menuData[day].forEach(item => {
+            const isFav = favorites.includes(item.name) ? 'active' : '';
             html += `
                 <div class="station-label">${item.station}</div>
-                <div class="meal-card" onclick="alert('Allergene für ${item.name}: A, G, L')">
-                    <div class="meal-info">
+                <div class="meal-card">
+                    <div class="meal-info" onclick="openModal('${item.name}', '${item.details}', '${item.energy}')">
                         <div class="meal-name">${item.name}</div>
                         <div class="meal-meta">
                             <div class="ampel ${item.color}"></div>
@@ -154,18 +224,13 @@
                         </div>
                     </div>
                     <div class="price">${item.price}</div>
+                    <button class="fav-btn ${isFav}" onclick="toggleFav(event, '${item.name}')">♥</button>
                 </div>
             `;
         });
-        
-        container.style.opacity = 0;
-        setTimeout(() => {
-            container.innerHTML = html;
-            container.style.opacity = 1;
-        }, 150);
+        container.innerHTML = html;
     }
 
-    // Initialize with Monday
     loadMenu('Mo');
 </script>
 
