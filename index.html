@@ -3,233 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERGO Gourmet Mobile App Integration</title>
+    <title>ERGO Gourmet Interactive App</title>
     <style>
         :root {
             --ergo-red: #da291c;
-            --light-bg: #f8f9fa;
-            --border: #e0e0e0;
-            --text-main: #212529;
-            --text-muted: #6c757d;
-            --green: #28a745;
-            --yellow: #ffc107;
-            --red: #dc3545;
+            --light-bg: #f2f2f7;
+            --border: #d1d1d6;
+            --text-main: #1c1c1e;
+            --green: #34c759;
+            --yellow: #ffcc00;
+            --red: #ff3b30;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, system-ui, sans-serif;
             background-color: var(--light-bg);
             margin: 0;
             color: var(--text-main);
+            padding-bottom: 50px;
         }
 
-        /* App Header */
+        /* Header */
         .app-bar {
             background: white;
-            padding: 16px;
+            padding: 20px 16px 10px;
             text-align: center;
-            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 100;
-        }
-        .app-bar h1 {
-            margin: 0;
-            font-size: 1.1rem;
-            color: var(--ergo-red);
-            font-weight: 800;
+            box-shadow: 0 1px 10px rgba(0,0,0,0.05);
         }
 
-        /* Day Selector */
+        /* Tab Navigation */
         .day-nav {
             display: flex;
             background: white;
+            padding: 10px;
+            gap: 10px;
             overflow-x: auto;
-            padding: 8px;
-            gap: 8px;
-            border-bottom: 1px solid var(--border);
+            scrollbar-width: none;
         }
         .day-pill {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: #eee;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            cursor: pointer;
+            flex: 0 0 auto;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: #e5e5ea;
+            font-weight: 600;
             border: none;
+            transition: 0.2s;
         }
         .day-pill.active {
             background: var(--ergo-red);
             color: white;
         }
 
-        /* Menu Container */
-        .menu-container {
-            padding: 16px;
-        }
-        .station-group {
-            margin-bottom: 24px;
-        }
-        .station-header {
-            font-size: 0.8rem;
+        /* Menu List */
+        .menu-container { padding: 16px; transition: opacity 0.3s; }
+        .station-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #8e8e93;
+            margin: 20px 0 8px 4px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-        }
-        .station-header::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-            margin-left: 10px;
         }
 
-        /* Meal Card */
         .meal-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 16px;
             margin-bottom: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border-left: 4px solid transparent;
-        }
-        .meal-card.veggie { border-left-color: var(--green); }
-        .meal-card.meat { border-left-color: var(--ergo-red); }
-
-        .meal-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-        }
-        .meal-title {
-            font-weight: 600;
-            font-size: 1rem;
-            max-width: 80%;
-        }
-        .meal-price {
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        .meal-tags {
-            display: flex;
-            gap: 6px;
-            font-size: 0.75rem;
-        }
-        .tag {
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: #f0f0f0;
-            color: #555;
-        }
-        .nutrition-row {
-            display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 4px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .ampel {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-        .ampel.green { background: var(--green); }
-        .ampel.yellow { background: var(--yellow); }
+        .meal-info { flex: 1; }
+        .meal-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+        .meal-meta { font-size: 13px; color: #8e8e93; display: flex; align-items: center; gap: 8px; }
+        .price { font-weight: 700; font-size: 16px; margin-left: 12px; color: var(--ergo-red); }
 
-        .action-btn {
-            margin-top: 10px;
-            background: #f8f9fa;
-            border: 1px solid var(--border);
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--ergo-red);
-            font-weight: 500;
-        }
+        .ampel { width: 10px; height: 10px; border-radius: 50%; }
+        .green { background: var(--green); }
+        .yellow { background: var(--yellow); }
+        .red { background: var(--red); }
     </style>
 </head>
 <body>
 
 <div class="app-bar">
-    <h1>ERGO GOURMET</h1>
-    <small>Düsseldorf | ERGO-Platz 1</small>
+    <div style="font-weight: 800; font-size: 20px;">ERGO Gourmet</div>
+    <div style="font-size: 13px; color: #8e8e93;">Düsseldorf | ERGO-Platz 1</div>
 </div>
 
-<div class="day-nav">
-    <button class="day-pill active">Mo, 26.01.</button>
-    <button class="day-pill">Di, 27.01.</button>
-    <button class="day-pill">Mi, 28.01.</button>
-    <button class="day-pill">Do, 29.01.</button>
-    <button class="day-pill">Fr, 30.01.</button>
+<div class="day-nav" id="dayNav">
+    <button class="day-pill active" onclick="loadMenu('Mo')">Mo</button>
+    <button class="day-pill" onclick="loadMenu('Di')">Di</button>
+    <button class="day-pill" onclick="loadMenu('Mi')">Mi</button>
+    <button class="day-pill" onclick="loadMenu('Do')">Do</button>
+    <button class="day-pill" onclick="loadMenu('Fr')">Fr</button>
 </div>
 
-<div class="menu-container">
-    
-    <div class="station-group">
-        <div class="station-header">G&G Counter</div>
-        <div class="meal-card meat">
-            <div class="meal-header">
-                <div class="meal-title">Gyros vom Putenfleisch mit Djuwetschreis und Krautsalat</div>
-                <div class="meal-price">6,50 €</div>
-            </div>
-            <div class="meal-tags">
-                <span class="tag">Casino Klassiker</span>
-                <span class="tag">Geflügel</span>
-            </div>
-            <div class="nutrition-row">
-                <div class="ampel yellow" title="Gelb: 1.6 kcal/g"></div>
-                <span>926 kcal | 51.6g Fett</span>
-            </div>
-            <div class="action-btn">Details & Allergene</div>
-        </div>
+<div class="menu-container" id="menuContainer">
     </div>
 
-    <div class="station-group">
-        <div class="station-header">The Bowl</div>
-        <div class="meal-card veggie">
-            <div class="meal-header">
-                <div class="meal-title">Gochujang-Rosenkohl mit Kimchi und Basmatireis</div>
-                <div class="meal-price">4,40 €</div>
-            </div>
-            <div class="meal-tags">
-                <span class="tag">Vegan</span>
-                <span class="tag">Scharf</span>
-            </div>
-            <div class="nutrition-row">
-                <div class="ampel green" title="Grün: 1.4 kcal/g"></div>
-                <span>781 kcal | 31.1g Fett</span>
-            </div>
-            <div class="action-btn">Details & Allergene</div>
-        </div>
-    </div>
+<script>
+    const menuData = {
+        'Mo': [
+            { station: 'G&G', name: 'Gyros vom Putenfleisch', price: '6,50€', energy: '926 kcal', color: 'yellow' },
+            { station: 'The Bowl', name: 'Gochujang-Rosenkohl (Vegan)', price: '4,40€', energy: '781 kcal', color: 'green' }
+        ],
+        'Di': [
+            { station: 'G&G', name: 'Rheinischer Sauerbraten', price: '7,20€', energy: '840 kcal', color: 'yellow' },
+            { station: 'The Daily 2', name: 'Penne All’Arrabbiata', price: '5,10€', energy: '620 kcal', color: 'green' }
+        ],
+        'Mi': [
+            { station: 'Signor Pepino', name: 'Hausgemachte Lasagne', price: '6,80€', energy: '1050 kcal', color: 'red' },
+            { station: 'The Bowl', name: 'Falafel Bowl mit Hummus', price: '5,50€', energy: '590 kcal', color: 'green' }
+        ],
+        'Do': [
+            { station: 'G&G', name: 'Currywurst ERGO Style', price: '5,90€', energy: '980 kcal', color: 'red' },
+            { station: 'Mix & Match', name: 'Gebratenes Lachsfilet', price: '8,50€', energy: '450 kcal', color: 'green' }
+        ],
+        'Fr': [
+            { station: 'G&G', name: 'Backfisch mit Remoulade', price: '6,90€', energy: '810 kcal', color: 'yellow' },
+            { station: 'The Daily 2', name: 'Kaiserschmarrn mit Zwetschgen', price: '4,50€', energy: '1100 kcal', color: 'red' }
+        ]
+    };
 
-    <div class="station-group">
-        <div class="station-header">Signor Pepino</div>
-        <div class="meal-card meat">
-            <div class="meal-header">
-                <div class="meal-title">Flammkuchen Elsässer Art mit Speck und Zwiebeln</div>
-                <div class="meal-price">4,25 €</div>
-            </div>
-            <div class="meal-tags">
-                <span class="tag">Schwein</span>
-            </div>
-            <div class="nutrition-row">
-                <div class="ampel red" style="background: var(--red);"></div>
-                <span>1012 kcal | 65.9g Fett</span>
-            </div>
-            <div class="action-btn">Details & Allergene</div>
-        </div>
-    </div>
+    function loadMenu(day) {
+        const container = document.getElementById('menuContainer');
+        
+        // Update Tabs
+        document.querySelectorAll('.day-pill').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText === day) btn.classList.add('active');
+        });
 
-</div>
+        // Generate HTML
+        let html = '';
+        menuData[day].forEach(item => {
+            html += `
+                <div class="station-label">${item.station}</div>
+                <div class="meal-card" onclick="alert('Allergene für ${item.name}: A, G, L')">
+                    <div class="meal-info">
+                        <div class="meal-name">${item.name}</div>
+                        <div class="meal-meta">
+                            <div class="ampel ${item.color}"></div>
+                            <span>${item.energy}</span>
+                        </div>
+                    </div>
+                    <div class="price">${item.price}</div>
+                </div>
+            `;
+        });
+        
+        container.style.opacity = 0;
+        setTimeout(() => {
+            container.innerHTML = html;
+            container.style.opacity = 1;
+        }, 150);
+    }
+
+    // Initialize with Monday
+    loadMenu('Mo');
+</script>
 
 </body>
 </html>
